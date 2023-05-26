@@ -1,13 +1,16 @@
+import com.example.sprint_7_mandrikov_ea.CreateCourier;
+import com.example.sprint_7_mandrikov_ea.LoginCourier;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.example.sprint_7_mandrikov_ea.CourierController.executeCreate;
-import static com.example.sprint_7_mandrikov_ea.CourierController.executeLogin;
-import static com.example.sprint_7_mandrikov_ea.JsonFiles.*;
+import static com.example.sprint_7_mandrikov_ea.CourierController.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.apache.http.HttpStatus.SC_OK;
+import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 
 public class LoginCourierTest {
     @Before
@@ -16,34 +19,45 @@ public class LoginCourierTest {
     }
     @Test
     public void successCourierLoginTest() {
-        executeCreate(CREATE_COURIER);
-        Response response = executeLogin(LOGIN_COURIER);
+        CreateCourier createCourier = new CreateCourier("NarutoUzumakovich","12345","NARUTOOOOOOO");
+        executeCreate(createCourier);
+        LoginCourier loginCourier = new LoginCourier("NarutoUzumakovich","12345");
+        Response response = executeLogin(loginCourier);
         response.then().assertThat().body("id", notNullValue())
                 .and()
-                .statusCode(200);
+                .statusCode(SC_OK);
     }
 
     @Test
     public void failLoginNonExistCourierTest() {
-        Response response = executeLogin(LOGIN_NON_EXIST_COURIER);
+        LoginCourier loginCourier = new LoginCourier("JolineKudjo","asdksa%jkhdk!");
+        Response response = executeLogin(loginCourier);
         response.then().assertThat().body("message", equalTo("Учетная запись не найдена"))
                 .and()
-                .statusCode(404);
+                .statusCode(SC_NOT_FOUND);
     }
 
     @Test
     public void failLoginWithWrongLoginTest() {
-        Response response = executeLogin(LOGIN_COURIER_WITH_WRONG_LOGIN);
+        LoginCourier loginCourier = new LoginCourier("NarutoUzumakovich123","12345");
+        Response response = executeLogin(loginCourier);
         response.then().assertThat().body("message", equalTo("Учетная запись не найдена"))
                 .and()
-                .statusCode(404);
+                .statusCode(SC_NOT_FOUND);
     }
 
     @Test
     public void failLoginWithWrongPasswordTest() {
-        Response response = executeLogin(LOGIN_COURIER_WITH_WRONG_PASSWORD);
+        LoginCourier loginCourier = new LoginCourier("NarutoUzumakovich","123452937dsfhjl");
+        Response response = executeLogin(loginCourier);
         response.then().assertThat().body("message", equalTo("Учетная запись не найдена"))
                 .and()
-                .statusCode(404);
+                .statusCode(SC_NOT_FOUND);
+    }
+
+    @After
+    public void deleteChanges() {
+        LoginCourier loginCourier = new LoginCourier("NarutoUzumakovich","12345");
+        executeDelete(loginCourier);
     }
 }

@@ -1,3 +1,4 @@
+import com.example.sprint_7_mandrikov_ea.CreateCourier;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.Before;
@@ -6,14 +7,13 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import static com.example.sprint_7_mandrikov_ea.CourierController.*;
-import static com.example.sprint_7_mandrikov_ea.JsonFiles.*;
 import static org.hamcrest.Matchers.equalTo;
+import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 
 @RunWith(Parameterized.class)
 public class CreateCourierParameterizedTest {
-    private final String credential; // credential - путь к JSON с учётными данными для создания курьера
-
-    public CreateCourierParameterizedTest(String credential) {
+    private final CreateCourier credential; // credential - путь к JSON с учётными данными для создания курьера
+    public CreateCourierParameterizedTest(CreateCourier credential) {
         this.credential = credential;
     }
 
@@ -25,8 +25,8 @@ public class CreateCourierParameterizedTest {
     @Parameterized.Parameters
     public static Object[][] getJsonLoginVariable() {
         return new Object[][] {
-                {CREATE_COURIER_WITHOUT_LOGIN},
-                {CREATE_COURIER_WITHOUT_PASSWORD}
+                {new CreateCourier("","12345","NARUTOOOOOOO")},
+                {new CreateCourier("NarutoUzumakovich","","NARUTOOOOOOO")}
         };
     }
     @Test
@@ -35,6 +35,6 @@ public class CreateCourierParameterizedTest {
         // Проверить наличие ошибки при отправлении неверных учётных данных (отсутствие логина или пароля)
         response.then().assertThat().body("message", equalTo("Недостаточно данных для создания учетной записи"))
                 .and()
-                .statusCode(400);
+                .statusCode(SC_BAD_REQUEST);
     }
 }

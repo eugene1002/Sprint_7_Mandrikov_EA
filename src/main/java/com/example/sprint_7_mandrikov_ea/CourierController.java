@@ -2,19 +2,17 @@ package com.example.sprint_7_mandrikov_ea;
 
 import io.restassured.response.Response;
 
-import java.io.File;
-
 import static io.restassured.RestAssured.given;
 
 public class CourierController {
-    public static Response executeCreate(String path) {
-        File json = new File(path);
+    private final static String apiCourier = "/api/v1/courier";
+    public static Response executeCreate(CreateCourier createCourier) {
         Response response =
                 given()
                         .header("Content-type", "application/json")
-                        .body(json)
+                        .body(createCourier)
                         .when()
-                        .post("/api/v1/courier");
+                        .post(apiCourier);
         return response;
     }
 
@@ -23,27 +21,27 @@ public class CourierController {
                 given()
                         .header("Content-type", "application/json")
                         .when()
-                        .delete(String.format("/api/v1/courier/%s", courierId));
+                        .delete(String.format(apiCourier + "%s", courierId));
         return response;
     }
 
-    public static Response executeDelete(String path) {
-        return executeDelete(getCourierId(path));
+    public static Response executeDelete(LoginCourier loginCourier) {
+        return executeDelete(getCourierId(loginCourier));
     }
 
-    public static int getCourierId(String path) {
-        Response response = executeLogin(path);
+    public static int getCourierId(LoginCourier loginCourier) {
+        Response response = executeLogin(loginCourier);
         int id = response.jsonPath().get("id");
         return id;
     }
-    public static Response executeLogin(String path) {
-        File json = new File(path);
+    public static Response executeLogin(LoginCourier loginCourier) {
+
         return
                 given()
                         .header("Content-type", "application/json")
-                        .body(json)
+                        .body(loginCourier)
                         .when()
-                        .post("/api/v1/courier/login");
+                        .post(apiCourier + "/login");
     }
 }
 

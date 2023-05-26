@@ -1,20 +1,20 @@
 package com.example.sprint_7_mandrikov_ea;
 
 import io.restassured.response.Response;
-import java.io.File;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 
 public class OrderController {
-    public static Response executeOrder(String path) {
-        File json = new File(path);
+    private final static String apiOrders = "/api/v1/orders";
+
+    public static Response executeOrder(CreateOrder createOrder) {
         Response response =
                 given()
                         .header("Content-type", "application/json")
-                        .body(json)
+                        .body(createOrder)
                         .when()
-                        .post("/api/v1/orders");
+                        .post(apiOrders);
         return response;
     }
 
@@ -23,7 +23,7 @@ public class OrderController {
                 .header("Content-type", "application/json")
                 .queryParam("t",trackId)
                 .when()
-                .get("/api/v1/orders/track");
+                .get(apiOrders + "/track");
     }
     public static int parseOrderIdFromResponse(Response response) {
         int trackId = response.jsonPath().get("track");
@@ -37,7 +37,7 @@ public class OrderController {
                         .header("Content-type", "application/json")
                         .queryParam("courierId", courierId)
                         .when()
-                        .put(String.format("/api/v1/orders/accept/%s",orderId));
+                        .put(String.format(apiOrders + "/accept/%s",orderId));
         return response;
     }
 
@@ -47,7 +47,7 @@ public class OrderController {
                         .header("Content-type", "application/json")
                         .queryParam("courierId", courierId)
                         .when()
-                        .get("/api/v1/orders");
+                        .get(apiOrders);
         return response;
     }
 
@@ -57,8 +57,21 @@ public class OrderController {
                         .header("Content-type", "application/json")
                         .queryParams(queryParams)
                         .when()
-                        .get("/api/v1/orders");
+                        .get(apiOrders);
         return response;
+    }
+
+    public static Response executeDeleteOrder(int orderId) {
+        Response response =
+                given()
+                        .header("Content-type", "application/json")
+                        .when()
+                        .put(String.format(apiOrders + "/finish/%s",orderId));
+        return response;
+    }
+
+    public static Response executeDeleteOrder(CreateOrder createOrder) {
+        return executeDeleteOrder(createOrder);
     }
 }
 
